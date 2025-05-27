@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 from rembg import remove
 from PIL import Image
@@ -39,31 +37,6 @@ st.markdown('''
         max-height: 100%;
         object-fit: contain;
     }
-    .btn-anim-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 12px;
-    }
-    .animation-img {
-        width: 60px;
-        height: 60px;
-    }
-    button[kind="primary"] {
-        padding: 6px 14px !important;
-        font-size: 0.85rem !important;
-        min-width: 100px !important;
-        height: 32px !important;
-    }
-    .stSelectbox > div > div > select {
-        font-size: 0.85rem !important;
-        width: 120px !important;
-    }
-    .language-label {
-        font-weight: bold;
-        font-size: 12px;
-        margin-bottom: 4px;
-    }
     .animation-fixed-bottom-center {
         position: fixed;
         bottom: 30px;
@@ -72,11 +45,16 @@ st.markdown('''
         z-index: 9999;
         pointer-events: none;
     }
+    .language-label {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
 </style>
 <div class="custom-banner"></div>
 ''', unsafe_allow_html=True)
 
-# ==== زبان ====
+# ==== متن‌ها به دو زبان ====
 texts = {
     "English": {
         "title": "Remove Kaveh Image Background",
@@ -89,7 +67,7 @@ texts = {
         "start_button": "Start"
     },
     "فارسی": {
-        "title":  "حذف پس زمینه تصویر کاوه",
+        "title": "حذف پس زمینه تصویر کاوه",
         "upload": "یک تصویر انتخاب کن (JPG, PNG)",
         "original": "تصویر اصلی",
         "processing": "در حال حذف پس‌زمینه...",
@@ -100,7 +78,7 @@ texts = {
     }
 }
 
-# ==== UI ====
+# ==== انتخاب زبان ====
 st.markdown('<div class="language-label">Language | زبان</div>',
             unsafe_allow_html=True)
 lang = st.selectbox("", ["English", "فارسی"],
@@ -123,24 +101,23 @@ if uploaded_file is not None:
 
     if start_button:
         animation_path = Path("assets/walk.gif")
-        with open(animation_path, "rb") as f:
-            gif_bytes = f.read()
-
-        b64_gif = base64.b64encode(gif_bytes).decode()
-
-        st.markdown(f'''
-            <div class="animation-fixed-bottom-center">
-                <img src="data:image/gif;base64,{b64_gif}" width="60" />
-            </div>
-        ''', unsafe_allow_html=True)
+        if animation_path.exists():
+            with open(animation_path, "rb") as f:
+                gif_bytes = f.read()
+            b64_gif = base64.b64encode(gif_bytes).decode()
+            st.markdown(f'''
+                <div class="animation-fixed-bottom-center">
+                    <img src="data:image/gif;base64,{b64_gif}" width="60" />
+                </div>
+            ''', unsafe_allow_html=True)
+        else:
+            st.warning("Animation GIF not found!")
 
         with st.spinner(t["processing"]):
             output_image = remove(input_image)
             time.sleep(1)
 
-        # حذف انیمیشن
-        st.markdown(
-            '<script>document.querySelector(".animation-fixed-bottom-center").remove()</script>', unsafe_allow_html=True)
+        # چون streamlit صفحه رو رفرش می‌کنه، حذف انیمیشن خودکار انجام میشه، پس نیاز به JS نداری
 
         st.success(t["done"])
 
